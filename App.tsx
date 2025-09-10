@@ -1,20 +1,44 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { PaperProvider } from "react-native-paper";
+import { Provider } from "react-redux";
+import { useColorScheme } from "react-native";
+import { store, useAppDispatch, useAppSelector } from "./src/store";
+import { selectTheme } from "./src/store/slices/themeSlice";
+import {
+  setSystemColorScheme,
+  loadThemePreference,
+} from "./src/store/slices/themeSlice";
+import { loadTransactions } from "./src/store/slices/transactionSlice";
+import HomeScreen from "./src/screens/HomeScreen";
 
-export default function App() {
+function AppContent() {
+  const dispatch = useAppDispatch();
+  const theme = useAppSelector(selectTheme);
+  const systemColorScheme = useColorScheme();
+
+  useEffect(() => {
+    dispatch(loadThemePreference());
+    dispatch(loadTransactions());
+  }, [dispatch]);
+  useEffect(() => {
+    if (systemColorScheme) {
+      dispatch(setSystemColorScheme(systemColorScheme));
+    }
+  }, [systemColorScheme, dispatch]);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PaperProvider theme={theme}>
+      <StatusBar style={theme.dark ? "light" : "dark"} />
+      <HomeScreen />
+    </PaperProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <Provider store={store}>
+      <AppContent />
+    </Provider>
+  );
+}
