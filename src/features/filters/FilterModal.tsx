@@ -7,8 +7,6 @@ import {
   Portal,
   Modal,
   Divider,
-  Menu,
-  Button,
 } from "react-native-paper";
 import { FilterOptions } from "../../types/transaction";
 import {
@@ -18,6 +16,7 @@ import {
 import { TransactionType } from "../../constants/enums";
 import CustomTextInput from "../../components/atoms/CustomTextInput";
 import CustomButton from "../../components/atoms/CustomButton";
+import CustomDropdown from "../../components/atoms/CustomDropdown";
 import { useAppSelector } from "../../store";
 import { selectTheme } from "../../store/slices/themeSlice";
 
@@ -34,7 +33,6 @@ const FilterModal: React.FC<FilterModalProps> = memo(
     const theme = useAppSelector(selectTheme);
 
     const [filters, setFilters] = useState<FilterOptions>(currentFilters);
-    const [showCategoryMenu, setShowCategoryMenu] = useState(false);
 
     const typeOptions = [
       { value: TransactionType.INCOME, label: "Income" },
@@ -76,14 +74,12 @@ const FilterModal: React.FC<FilterModalProps> = memo(
 
     const handleClear = useCallback(() => {
       setFilters({});
-      setShowCategoryMenu(false);
       onClear();
       onDismiss();
     }, [onClear, onDismiss]);
 
     const handleCancel = useCallback(() => {
       setFilters(currentFilters);
-      setShowCategoryMenu(false);
       onDismiss();
     }, [currentFilters, onDismiss]);
 
@@ -159,42 +155,15 @@ const FilterModal: React.FC<FilterModalProps> = memo(
                     <Text variant="titleMedium" style={styles.sectionTitle}>
                       Category
                     </Text>
-                    <Menu
-                      visible={showCategoryMenu}
-                      onDismiss={() => setShowCategoryMenu(false)}
-                      anchor={
-                        <Button
-                          mode="outlined"
-                          onPress={() => setShowCategoryMenu(true)}
-                          style={styles.categoryButton}
-                          contentStyle={styles.categoryButtonContent}
-                          icon="chevron-down"
-                        >
-                          {filters.category || "Select Category"}
-                        </Button>
+                    <CustomDropdown
+                      value={filters.category}
+                      placeholder="Select Category"
+                      options={getAvailableCategories()}
+                      onSelect={(category) =>
+                        updateFilter("category", category)
                       }
-                      contentStyle={styles.categoryMenu}
-                      anchorPosition="bottom"
-                    >
-                      {getAvailableCategories().map((category) => (
-                        <Menu.Item
-                          key={category}
-                          onPress={() => {
-                            updateFilter("category", category);
-                            setShowCategoryMenu(false);
-                          }}
-                          title={category}
-                          titleStyle={
-                            filters.category === category
-                              ? {
-                                  color: theme.colors.primary,
-                                  fontWeight: "600",
-                                }
-                              : undefined
-                          }
-                        />
-                      ))}
-                    </Menu>
+                      style={styles.categoryButton}
+                    />
                   </View>
                 )}
 
@@ -263,15 +232,6 @@ const styles = StyleSheet.create({
   categoryButton: {
     marginTop: 8,
     justifyContent: "flex-start",
-  },
-  categoryButtonContent: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-  },
-  categoryMenu: {
-    maxHeight: 250,
-    borderRadius: 8,
-    width: 280,
   },
   actions: {
     flexDirection: "row",

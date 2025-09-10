@@ -6,8 +6,6 @@ import {
   SegmentedButtons,
   Portal,
   Modal,
-  Menu,
-  Button,
 } from "react-native-paper";
 import { TransactionFormData } from "../../types/transaction";
 import {
@@ -17,6 +15,7 @@ import {
 import { TransactionType } from "../../constants/enums";
 import CustomTextInput from "../../components/atoms/CustomTextInput";
 import CustomButton from "../../components/atoms/CustomButton";
+import CustomDropdown from "../../components/atoms/CustomDropdown";
 import { useAppSelector } from "../../store";
 import { selectTheme } from "../../store/slices/themeSlice";
 
@@ -49,10 +48,10 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(
       Partial<Record<keyof TransactionFormData, string>>
     >({});
 
-    const [showCategoryMenu, setShowCategoryMenu] = useState(false);
-
     const categories =
-      formData.type === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+      formData.type === TransactionType.EXPENSE
+        ? EXPENSE_CATEGORIES
+        : INCOME_CATEGORIES;
 
     const validateForm = useCallback((): boolean => {
       const newErrors: Partial<Record<keyof TransactionFormData, string>> = {};
@@ -172,39 +171,15 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(
                       {errors.category}
                     </Text>
                   )}
-                  <Menu
-                    visible={showCategoryMenu}
-                    onDismiss={() => setShowCategoryMenu(false)}
-                    anchor={
-                      <Button
-                        mode="outlined"
-                        onPress={() => setShowCategoryMenu(true)}
-                        style={styles.categoryButton}
-                        contentStyle={styles.categoryButtonContent}
-                        icon="chevron-down"
-                      >
-                        {formData.category || "Select Category"}
-                      </Button>
+                  <CustomDropdown
+                    value={formData.category}
+                    placeholder="Select Category"
+                    options={categories}
+                    onSelect={(category) =>
+                      updateFormData("category", category)
                     }
-                    contentStyle={styles.categoryMenu}
-                    anchorPosition="bottom"
-                  >
-                    {categories.map((category) => (
-                      <Menu.Item
-                        key={category}
-                        onPress={() => {
-                          updateFormData("category", category);
-                          setShowCategoryMenu(false);
-                        }}
-                        title={category}
-                        titleStyle={
-                          formData.category === category
-                            ? { color: theme.colors.primary, fontWeight: "600" }
-                            : undefined
-                        }
-                      />
-                    ))}
-                  </Menu>
+                    style={styles.categoryButton}
+                  />
                 </View>
 
                 <View style={styles.section}>
@@ -267,15 +242,6 @@ const styles = StyleSheet.create({
   categoryButton: {
     marginTop: 8,
     justifyContent: "flex-start",
-  },
-  categoryButtonContent: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-  },
-  categoryMenu: {
-    maxHeight: 250,
-    borderRadius: 8,
-    width: 280,
   },
   errorText: {
     fontSize: 12,
