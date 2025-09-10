@@ -87,7 +87,6 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(
         description: "",
       });
       setErrors({});
-      setShowCategoryMenu(false);
     }, []);
 
     const handleDismiss = useCallback(() => {

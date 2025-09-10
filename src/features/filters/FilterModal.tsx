@@ -40,8 +40,9 @@ const FilterModal: React.FC<FilterModalProps> = memo(
     ];
 
     const getAvailableCategories = () => {
-      if (filters.type === TransactionType.INCOME) return INCOME_CATEGORIES;
-      if (filters.type === TransactionType.EXPENSE) return EXPENSE_CATEGORIES;
+      const currentType = filters.type || TransactionType.EXPENSE;
+      if (currentType === TransactionType.INCOME) return INCOME_CATEGORIES;
+      if (currentType === TransactionType.EXPENSE) return EXPENSE_CATEGORIES;
       return [];
     };
 
@@ -105,7 +106,7 @@ const FilterModal: React.FC<FilterModalProps> = memo(
                     Transaction Type
                   </Text>
                   <SegmentedButtons
-                    value={filters.type || ""}
+                    value={filters.type || TransactionType.EXPENSE}
                     onValueChange={(value) =>
                       updateFilter("type", value as TransactionType)
                     }
@@ -148,9 +149,11 @@ const FilterModal: React.FC<FilterModalProps> = memo(
                   </View>
                 </View>
 
-                {filters.type && <Divider style={styles.divider} />}
+                {(filters.type || TransactionType.EXPENSE) && (
+                  <Divider style={styles.divider} />
+                )}
 
-                {filters.type && (
+                {(filters.type || TransactionType.EXPENSE) && (
                   <View style={styles.section}>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
                       Category
